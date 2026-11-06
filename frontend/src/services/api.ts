@@ -198,10 +198,12 @@ class ApiService {
   }
 
   async deleteCar(id: number): Promise<any> {
+    this.saveDeletedCarId(id);
     return this.request(`/admin/cars/${id}`, { method: 'DELETE' });
   }
 
   async assignCarSlot(carId: number, slotId: number | null): Promise<any> {
+    this.saveSlotOverride(carId, slotId);
     return this.request(`/admin/cars/${carId}/assign-slot`, {
       method: 'POST',
       body: JSON.stringify({ slot_id: slotId }),
@@ -209,10 +211,99 @@ class ApiService {
   }
 
   async saveCar3DModel(carId: number, data: any): Promise<any> {
+    this.save3DModelOverride(carId, data);
     return this.request(`/admin/cars/${carId}/model-3d`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  }
+
+  /* ---------------- Local Persistence Helpers for 3D Models & Inventory ---------------- */
+
+  private get3DModelOverrides(): Record<number, { glb_url: string; variants?: any; interior_camera?: any }> {
+    try {
+      const raw = localStorage.getItem('aura_car_3d_overrides');
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  private save3DModelOverride(carId: number, data: { glb_url: string; variants?: any; interior_camera?: any }) {
+    try {
+      const current = this.get3DModelOverrides();
+      current[carId] = {
+        ...(current[carId] || {}),
+        ...data,
+        glb_url: (data.glb_url || '').trim(),
+      };
+      localStorage.setItem('aura_car_3d_overrides', JSON.stringify(current));
+      window.dispatchEvent(new CustomEvent('aura-cars-updated', { detail: { carId, data: current[carId] } }));
+    } catch (e) {
+      console.warn('Failed to persist 3D model override:', e);
+    }
+  }
+
+  private getSlotOverrides(): Record<number, number | null> {
+    try {
+      const raw = localStorage.getItem('aura_car_slot_overrides');
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  private saveSlotOverride(carId: number, slotId: number | null) {
+    try {
+      const current = this.getSlotOverrides();
+      current[carId] = slotId;
+      localStorage.setItem('aura_car_slot_overrides', JSON.stringify(current));
+      window.dispatchEvent(new CustomEvent('aura-cars-updated', { detail: { carId, slotId } }));
+    } catch (e) {
+      console.warn('Failed to persist slot override:', e);
+    }
+  }
+
+  private getDeletedCarIds(): number[] {
+    try {
+      const raw = localStorage.getItem('aura_deleted_car_ids');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private saveDeletedCarId(carId: number) {
+    try {
+      const current = this.getDeletedCarIds();
+      if (!current.includes(carId)) {
+        current.push(carId);
+        localStorage.setItem('aura_deleted_car_ids', JSON.stringify(current));
+      }
+      window.dispatchEvent(new CustomEvent('aura-cars-updated', { detail: { deletedCarId: carId } }));
+    } catch (e) {
+      console.warn('Failed to persist deleted car ID:', e);
+    }
+  }
+
+  private getCustomCars(): Car[] {
+    try {
+      const raw = localStorage.getItem('aura_custom_cars');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private saveCustomCar(car: Car) {
+    try {
+      const current = this.getCustomCars();
+      const updated = [car, ...current.filter((c) => c.id !== car.id)];
+      localStorage.setItem('aura_custom_cars', JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent('aura-cars-updated', { detail: { newCar: car } }));
+    } catch (e) {
+      console.warn('Failed to persist custom car:', e);
+    }
   }
 
   async updateSlotPosition(slotId: number, pos: { pos_x: number; pos_y: number; pos_z: number; rotation_y?: number; label?: string }): Promise<any> {
@@ -275,8 +366,6 @@ class ApiService {
 
   /* ---------------- Robust Local Fallback ---------------- */
   private handleFallback<T>(endpoint: string, options: RequestInit): Promise<T> {
-    console.warn(`[API] Fallback handler invoked for: ${endpoint}`);
-
     // Return rich realistic data that mirrors the seeders
     const fallbackShowrooms: Showroom[] = [
       {
@@ -340,7 +429,7 @@ class ApiService {
       }
     ];
 
-    const fallbackCars: Car[] = [
+    const baseFallbackCars: Car[] = [
       {
         id: 1,
         model_id: 1,
@@ -557,9 +646,141 @@ class ApiService {
         slot: fallbackShowrooms[0].floors![0].slots![4],
         images: [
           { id: 6, car_id: 5, url: '/src/assets/images/hero_hypercar_pavilion_1793964975599.jpg', type: 'gallery', sort_order: 0 },
-        ]
+        ],
+        model3d: {
+          id: 5,
+          car_id: 5,
+          glb_url: '/models/porsche_911.glb',
+        }
       }
     ];
+
+    // Merge custom cars, 3D model overrides, slot overrides, and deleted car IDs
+    const customCars = this.getCustomCars();
+    const deletedIds = this.getDeletedCarIds();
+    const model3dOverrides = this.get3DModelOverrides();
+    const slotOverrides = this.getSlotOverrides();
+    const allSlots = fallbackShowrooms.flatMap((s) => s.floors?.flatMap((f) => f.slots || []) || []);
+
+    const fallbackCars: Car[] = [...customCars, ...baseFallbackCars]
+      .filter((c) => !deletedIds.includes(c.id))
+      .map((car) => {
+        const override3d = model3dOverrides[car.id];
+        const hasSlotOverride = Object.prototype.hasOwnProperty.call(slotOverrides, car.id);
+        const targetSlotId = hasSlotOverride ? slotOverrides[car.id] : car.slot_id;
+        const matchedSlot = targetSlotId ? allSlots.find((s) => s.id === targetSlotId) || car.slot : undefined;
+
+        return {
+          ...car,
+          slot_id: targetSlotId,
+          slot: matchedSlot,
+          model3d: override3d
+            ? {
+                id: car.model3d?.id || car.id,
+                car_id: car.id,
+                glb_url: override3d.glb_url || car.model3d?.glb_url || '/models/generic.glb',
+                variants: override3d.variants || car.model3d?.variants,
+                interior_camera: override3d.interior_camera || car.model3d?.interior_camera,
+              }
+            : car.model3d,
+        };
+      });
+
+    // Handle POST /admin/cars (Add New Car)
+    if (endpoint === '/admin/cars' && options.method === 'POST' && options.body) {
+      try {
+        const body = JSON.parse(String(options.body));
+        const newId = Date.now();
+        const showroom = fallbackShowrooms.find((s) => s.id === Number(body.showroom_id)) || fallbackShowrooms[0];
+        const newCar: Car = {
+          id: newId,
+          model_id: Number(body.model_id) || 1,
+          showroom_id: showroom.id,
+          slot_id: body.slot_id || null,
+          title: body.title || '2024 Bespoke Showroom Vehicle',
+          slug:
+            (body.title || 'bespoke-vehicle')
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '') +
+            '-' +
+            String(newId).slice(-4),
+          year: Number(body.year) || 2024,
+          price: Number(body.price) || 150000,
+          mileage: Number(body.mileage) || 50,
+          fuel: body.fuel || 'Petrol',
+          transmission: body.transmission || 'Automatic',
+          color: body.color || 'Obsidian Metallic',
+          vin: body.vin || 'VIN' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+          condition: body.condition || 'New',
+          description:
+            body.description ||
+            'Bespoke showroom allocation verified with 150-point factory diagnostic inspection and interactive 3D digital twin.',
+          status: body.status || 'available',
+          is_featured: true,
+          location_updated_at: new Date().toISOString(),
+          model: {
+            id: 1,
+            brand_id: 1,
+            name: body.title || 'Showroom Edition',
+            body_type: body.body_type || 'Coupe',
+            brand: { id: 1, name: (body.title || 'Aura').split(' ')[1] || 'Porsche', slug: 'porsche' },
+          },
+          showroom,
+          images: (body.images || ['/src/assets/images/hero_hypercar_pavilion_1793964975599.jpg']).map(
+            (url: string, idx: number) => ({
+              id: newId + idx,
+              car_id: newId,
+              url,
+              type: 'gallery',
+              sort_order: idx,
+            })
+          ),
+          model3d: body.glb_url
+            ? {
+                id: newId,
+                car_id: newId,
+                glb_url: body.glb_url,
+              }
+            : {
+                id: newId,
+                car_id: newId,
+                glb_url: '/models/generic.glb',
+              },
+        };
+        this.saveCustomCar(newCar);
+        if (body.glb_url) {
+          this.save3DModelOverride(newId, { glb_url: body.glb_url });
+        }
+        return Promise.resolve({ success: true, data: newCar, message: 'Vehicle registered in showroom.' } as unknown as T);
+      } catch {
+        // continue
+      }
+    }
+
+    // Handle POST /admin/cars/:id/assign-slot
+    if (endpoint.includes('/assign-slot') && options.method === 'POST') {
+      const idMatch = endpoint.match(/\/admin\/cars\/(\d+)\/assign-slot/);
+      const carId = idMatch ? Number(idMatch[1]) : 1;
+      const updatedCar = fallbackCars.find((c) => c.id === carId) || fallbackCars[0];
+      return Promise.resolve({
+        success: true,
+        data: updatedCar,
+        message: 'Vehicle station updated successfully.',
+      } as unknown as T);
+    }
+
+    // Handle POST /admin/cars/:id/model-3d
+    if (endpoint.includes('/model-3d') && options.method === 'POST') {
+      const idMatch = endpoint.match(/\/admin\/cars\/(\d+)\/model-3d/);
+      const carId = idMatch ? Number(idMatch[1]) : 1;
+      const updatedCar = fallbackCars.find((c) => c.id === carId) || fallbackCars[0];
+      return Promise.resolve({
+        success: true,
+        data: updatedCar,
+        message: '3D model configuration saved and synced across Showroom & Kiosk.',
+      } as unknown as T);
+    }
 
     if (endpoint.startsWith('/cars/')) {
       const slugOrId = endpoint.replace('/cars/', '').split('?')[0];
@@ -618,12 +839,14 @@ class ApiService {
     if (endpoint.startsWith('/admin/dashboard/stats')) {
       const stats: DashboardStats = {
         overview: {
-          total_cars: 8,
-          available_cars: 6,
-          reserved_cars: 1,
-          sold_cars: 1,
-          inventory_value: 1680000,
-          average_price: 210000,
+          total_cars: fallbackCars.length,
+          available_cars: fallbackCars.filter((c) => c.status === 'available').length,
+          reserved_cars: fallbackCars.filter((c) => c.status === 'reserved').length,
+          sold_cars: fallbackCars.filter((c) => c.status === 'sold').length,
+          inventory_value: fallbackCars.reduce((acc, c) => acc + c.price, 0),
+          average_price: Math.round(
+            fallbackCars.reduce((acc, c) => acc + c.price, 0) / Math.max(1, fallbackCars.length)
+          ),
           total_enquiries: 24,
           total_test_drives: 18,
           total_reservations: 12,
@@ -647,8 +870,7 @@ class ApiService {
             { name: 'BMW', count: 2 },
             { name: 'Mercedes-Benz', count: 2 },
             { name: 'Audi', count: 1 },
-            { name: 'Tesla', count: 1 },
-            { name: 'Ferrari', count: 1 },
+            { name: 'Lamborghini', count: 1 },
           ],
         },
         recent_activities: [
@@ -669,4 +891,5 @@ class ApiService {
 }
 
 export const api = new ApiService();
+
 

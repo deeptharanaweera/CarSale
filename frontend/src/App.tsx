@@ -94,6 +94,22 @@ export function App() {
 
   useEffect(() => {
     loadInitialData();
+
+    const handleCarsUpdated = async () => {
+      try {
+        const carsRes = await api.getCars();
+        const updatedCars = carsRes.data;
+        setCars(updatedCars);
+        setSelectedCar((prev) =>
+          prev ? updatedCars.find((c) => c.id === prev.id) || prev : null
+        );
+      } catch {
+        // ignore
+      }
+    };
+
+    window.addEventListener('aura-cars-updated', handleCarsUpdated);
+    return () => window.removeEventListener('aura-cars-updated', handleCarsUpdated);
   }, []);
 
   const handleSelectCar = (car: Car) => {
