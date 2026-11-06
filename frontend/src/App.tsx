@@ -69,8 +69,22 @@ export function App() {
         api.getCars(),
         api.getShowrooms(),
       ]);
-      setCars(carsRes.data);
+      const loadedCars = carsRes.data;
+      setCars(loadedCars);
       setShowrooms(showroomsRes.data);
+
+      // Check URL query parameter ?car=<slug_or_id> for QR code deep-linking
+      const params = new URLSearchParams(window.location.search);
+      const carParam = params.get('car');
+      if (carParam && loadedCars.length > 0) {
+        const matched = loadedCars.find(
+          (c) => c.slug === carParam || String(c.id) === carParam
+        );
+        if (matched) {
+          setSelectedCar(matched);
+          setPublicPage('car-detail');
+        }
+      }
     } catch (err) {
       console.error('Error loading initial data:', err);
     } finally {

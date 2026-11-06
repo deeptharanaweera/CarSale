@@ -4,6 +4,7 @@ import {
   Heart,
   Scale,
   ChevronRight,
+  QrCode,
 } from 'lucide-react';
 
 interface CarCardProps {
@@ -12,6 +13,7 @@ interface CarCardProps {
   isCompared?: boolean;
   onToggleFavorite?: (car: Car) => void;
   onToggleCompare?: (car: Car) => void;
+  onOpenQr?: (car: Car) => void;
   onSelect: (car: Car) => void;
 }
 
@@ -23,6 +25,7 @@ export const CarCard: React.FC<CarCardProps> = ({
   isCompared = false,
   onToggleFavorite,
   onToggleCompare,
+  onOpenQr,
   onSelect,
 }) => {
   const coverImage = car.images?.[0]?.url || FALLBACK_CAR_IMAGE;
@@ -64,8 +67,23 @@ export const CarCard: React.FC<CarCardProps> = ({
           </span>
         )}
 
-        {/* Functional Affordance Buttons (Compare & Save) */}
+        {/* Functional Affordance Buttons (QR Code, Compare & Save) */}
         <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+          {onOpenQr && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenQr(car);
+              }}
+              aria-label="Open mobile QR code"
+              className="p-2 rounded-lg bg-black/60 text-slate-300 hover:text-cyan-400 border border-white/[0.12] transition-colors"
+              title="Mobile QR Code"
+            >
+              <QrCode className="w-3.5 h-3.5" />
+            </button>
+          )}
+
           {onToggleCompare && (
             <button
               type="button"
@@ -74,7 +92,7 @@ export const CarCard: React.FC<CarCardProps> = ({
                 onToggleCompare(car);
               }}
               aria-label={isCompared ? 'Remove from comparison' : 'Add to comparison'}
-              className={`p-2 rounded-lg backdrop-blur-md transition-colors ${
+              className={`p-2 rounded-lg transition-colors ${
                 isCompared
                   ? 'bg-rose-600 text-white'
                   : 'bg-black/60 text-slate-300 hover:text-white border border-white/[0.12]'
@@ -93,7 +111,7 @@ export const CarCard: React.FC<CarCardProps> = ({
                 onToggleFavorite(car);
               }}
               aria-label={isFavorited ? 'Remove from saved' : 'Save vehicle'}
-              className={`p-2 rounded-lg backdrop-blur-md transition-colors ${
+              className={`p-2 rounded-lg transition-colors ${
                 isFavorited
                   ? 'bg-rose-600 text-white'
                   : 'bg-black/60 text-slate-300 hover:text-white border border-white/[0.12]'

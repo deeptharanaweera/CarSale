@@ -3,6 +3,7 @@ import { Car } from '../../types';
 import { api } from '../../services/api';
 import { CarViewer3D } from '../3d/CarViewer3D';
 import { ShowroomViewer3D } from '../3d/ShowroomViewer3D';
+import { CarQrCodeModal } from './CarQrCodeModal';
 import {
   Calendar,
   CheckCircle2,
@@ -11,6 +12,7 @@ import {
   Scale,
   ArrowLeft,
   X,
+  QrCode,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -41,6 +43,7 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
   const [selectedGalleryImg, setSelectedGalleryImg] = useState<string>(
     car.images?.[0]?.url || FALLBACK_DETAIL_IMG
   );
+  const [qrModalOpen, setQrModalOpen] = useState(false);
 
   // Modals & notifications
   const [bookingModal, setBookingModal] = useState<'test_drive' | 'enquiry' | 'reserve' | null>(null);
@@ -80,7 +83,9 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
           amount: 500,
         });
         confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-        setSuccessBanner('Vehicle reserved with $500 refundable deposit. Concierge allocation dossier sent.');
+        setSuccessBanner(
+          'Vehicle reserved with $500 refundable deposit. Concierge allocation dossier sent.'
+        );
       } else if (bookingModal === 'test_drive') {
         await api.submitTestDrive({
           car_id: car.id,
@@ -90,7 +95,9 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
           date_time: testDriveDate,
         });
         confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
-        setSuccessBanner('Private showroom test drive confirmed. Our gallery director will greet you.');
+        setSuccessBanner(
+          'Private showroom test drive confirmed. Our gallery director will greet you.'
+        );
       } else {
         await api.submitEnquiry({
           car_id: car.id,
@@ -99,7 +106,9 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
           email: clientEmail,
           message: clientMessage,
         });
-        setSuccessBanner('Concierge inquiry registered. A dedicated advisor has been assigned to you.');
+        setSuccessBanner(
+          'Concierge inquiry registered. A dedicated advisor has been assigned to you.'
+        );
       }
       setBookingModal(null);
     } catch (err: any) {
@@ -127,18 +136,27 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
 
   return (
     <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-8 space-y-10 animate-fade-in-up">
-      {/* Top Breadcrumb Bar */}
+      {/* Top Breadcrumb & Quick Actions Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/[0.08]">
         <button
           type="button"
           onClick={onBack}
           className="flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white transition-colors group"
         >
-          <ArrowLeft className="w-4 h-4 text-rose-500 group-hover:-translate-x-0.5 transition-transform" />
+          <ArrowLeft className="w-4 h-4 text-cyan-400 group-hover:-translate-x-0.5 transition-transform" />
           <span>Back to Showroom Inventory</span>
         </button>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setQrModalOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#11151F] hover:bg-white/[0.08] border border-cyan-500/30 text-cyan-300 hover:text-white text-xs font-medium transition-colors whitespace-nowrap shrink-0"
+          >
+            <QrCode className="w-3.5 h-3.5" />
+            <span>Mobile QR Pass</span>
+          </button>
+
           {onToggleCompare && (
             <button
               type="button"
@@ -188,120 +206,130 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>{successBanner}</span>
           </div>
-          <button type="button" onClick={() => setSuccessBanner(null)} className="p-1 hover:text-white">
+          <button
+            type="button"
+            onClick={() => setSuccessBanner(null)}
+            className="p-1 hover:text-white"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      {/* Contiguous PDP Architecture: Left Media & Technical Dossier (8 cols) + Right Sticky Purchase Module (4 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: 3D Configurator / Gallery + Specs */}
-        <div className="lg:col-span-8 space-y-8">
-          {/* Segmented Viewport Switcher */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-1 p-1 rounded-lg bg-[#11151F] border border-white/[0.08]">
+      {/* ==================== FULL-WIDTH 3D STUDIO SHOWCASE STAGE WITH SIDE CALLOUT DETAILS ==================== */}
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-[#11151F] border border-white/[0.08]">
+            <button
+              type="button"
+              onClick={() => setActiveMediaTab('3d')}
+              className={`px-4 py-2 rounded-md font-medium text-xs transition-colors whitespace-nowrap shrink-0 ${
+                activeMediaTab === '3d'
+                  ? 'bg-cyan-500 text-slate-950 font-semibold'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              3D Studio & Side Telemetry
+            </button>
+
+            {car.showroom && (
               <button
                 type="button"
-                onClick={() => setActiveMediaTab('3d')}
+                onClick={() => setActiveMediaTab('showroom')}
                 className={`px-4 py-2 rounded-md font-medium text-xs transition-colors whitespace-nowrap shrink-0 ${
-                  activeMediaTab === '3d'
-                    ? 'bg-rose-600 text-white'
+                  activeMediaTab === 'showroom'
+                    ? 'bg-cyan-500 text-slate-950 font-semibold'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                3D Studio Customizer
+                Showroom Floor Bay
               </button>
+            )}
 
-              {car.showroom && (
-                <button
-                  type="button"
-                  onClick={() => setActiveMediaTab('showroom')}
-                  className={`px-4 py-2 rounded-md font-medium text-xs transition-colors whitespace-nowrap shrink-0 ${
-                    activeMediaTab === 'showroom'
-                      ? 'bg-rose-600 text-white'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  Showroom Floor Bay
-                </button>
-              )}
+            <button
+              type="button"
+              onClick={() => setActiveMediaTab('gallery')}
+              className={`px-4 py-2 rounded-md font-medium text-xs transition-colors whitespace-nowrap shrink-0 ${
+                activeMediaTab === 'gallery'
+                  ? 'bg-cyan-500 text-slate-950 font-semibold'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Still Photography
+            </button>
+          </div>
 
-              <button
-                type="button"
-                onClick={() => setActiveMediaTab('gallery')}
-                className={`px-4 py-2 rounded-md font-medium text-xs transition-colors whitespace-nowrap shrink-0 ${
-                  activeMediaTab === 'gallery'
-                    ? 'bg-rose-600 text-white'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Still Photography
-              </button>
+          {car.slot && (
+            <div className="text-xs text-slate-400 font-mono tabular-nums">
+              <span>{car.showroom?.name}</span>
+              <span aria-hidden="true" className="mx-2">·</span>
+              <span className="text-cyan-400">Bay {car.slot.label}</span>
             </div>
+          )}
+        </div>
 
-            {car.slot && (
-              <div className="text-xs text-slate-400 font-mono tabular-nums">
-                <span>{car.showroom?.name}</span>
-                <span aria-hidden="true" className="mx-2">·</span>
-                <span className="text-slate-200">Bay {car.slot.label}</span>
+        {/* Full-Width 3D / Gallery Stage (Allows Left & Right Architectural Side Callouts Full Breathing Room) */}
+        <div className="h-[540px] sm:h-[620px] rounded-2xl overflow-hidden bg-[#05080D] relative">
+          {activeMediaTab === '3d' ? (
+            <CarViewer3D
+              car={car}
+              className="w-full h-full"
+              allowCustomize={true}
+              showSideDetails={true}
+            />
+          ) : activeMediaTab === 'showroom' && car.showroom ? (
+            <ShowroomViewer3D showroom={car.showroom} targetCar={car} className="w-full h-full" />
+          ) : (
+            <div className="w-full h-full flex flex-col p-4 bg-[#090B10] border border-white/[0.08] rounded-2xl">
+              <div className="flex-1 rounded-xl overflow-hidden bg-[#11151F] relative mb-3">
+                <img
+                  src={selectedGalleryImg}
+                  alt={car.title}
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (target.src !== window.location.origin + FALLBACK_DETAIL_IMG) {
+                      target.src = FALLBACK_DETAIL_IMG;
+                    }
+                  }}
+                  className="w-full h-full object-cover"
+                />
               </div>
-            )}
-          </div>
-
-          {/* Interactive 3D / Gallery Viewport */}
-          <div className="h-[480px] sm:h-[540px] rounded-2xl overflow-hidden border border-white/[0.08] bg-[#090B10] relative">
-            {activeMediaTab === '3d' ? (
-              <CarViewer3D car={car} className="w-full h-full" allowCustomize={true} />
-            ) : activeMediaTab === 'showroom' && car.showroom ? (
-              <ShowroomViewer3D showroom={car.showroom} targetCar={car} className="w-full h-full" />
-            ) : (
-              <div className="w-full h-full flex flex-col p-4 bg-[#090B10]">
-                <div className="flex-1 rounded-xl overflow-hidden bg-[#11151F] relative mb-3">
-                  <img
-                    src={selectedGalleryImg}
-                    alt={car.title}
-                    referrerPolicy="no-referrer"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      if (target.src !== window.location.origin + FALLBACK_DETAIL_IMG) {
-                        target.src = FALLBACK_DETAIL_IMG;
-                      }
-                    }}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-                  {car.images?.map((img) => (
-                    <button
-                      key={img.id}
-                      type="button"
-                      onClick={() => setSelectedGalleryImg(img.url)}
-                      className={`w-24 h-16 rounded-lg overflow-hidden border shrink-0 transition-all ${
-                        selectedGalleryImg === img.url
-                          ? 'border-rose-500 opacity-100'
-                          : 'border-white/10 opacity-50 hover:opacity-100'
-                      }`}
-                    >
-                      <img
-                        src={img.url}
-                        alt={car.title}
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          if (target.src !== window.location.origin + FALLBACK_DETAIL_IMG) {
-                            target.src = FALLBACK_DETAIL_IMG;
-                          }
-                        }}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                {car.images?.map((img) => (
+                  <button
+                    key={img.id}
+                    type="button"
+                    onClick={() => setSelectedGalleryImg(img.url)}
+                    className={`w-24 h-16 rounded-lg overflow-hidden border shrink-0 transition-all ${
+                      selectedGalleryImg === img.url
+                        ? 'border-cyan-400 opacity-100'
+                        : 'border-white/10 opacity-50 hover:opacity-100'
+                    }`}
+                  >
+                    <img
+                      src={img.url}
+                      alt={car.title}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (target.src !== window.location.origin + FALLBACK_DETAIL_IMG) {
+                          target.src = FALLBACK_DETAIL_IMG;
+                        }
+                      }}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
+      </div>
 
+      {/* Contiguous PDP Dossier (8 cols) + Right Sticky Acquisition Module (4 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="lg:col-span-8 space-y-8">
           {/* Technical Overview & Key Specifications */}
           <div className="rounded-2xl bg-[#11151F] border border-white/[0.08] p-6 sm:p-8 space-y-6">
             <div className="space-y-2">
@@ -322,9 +350,7 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
               </div>
               <div className="space-y-1">
                 <span className="text-xs text-slate-400 block">Powertrain</span>
-                <span className="text-lg font-bold text-white font-display block">
-                  {car.fuel}
-                </span>
+                <span className="text-lg font-bold text-white font-display block">{car.fuel}</span>
               </div>
               <div className="space-y-1">
                 <span className="text-xs text-slate-400 block">Transmission</span>
@@ -353,7 +379,7 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
                     key={feat.id}
                     className="flex items-center gap-2.5 text-xs text-slate-200 p-3.5 rounded-xl bg-[#090B10] border border-white/[0.06]"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-rose-500 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
                     <span>{feat.name}</span>
                   </div>
                 ))}
@@ -425,7 +451,6 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
         {/* Right Column: Sticky Contiguous Purchase Module (4 cols) */}
         <div className="lg:col-span-4 lg:sticky lg:top-28">
           <div className="p-6 sm:p-8 rounded-2xl bg-[#11151F] border border-white/[0.1] space-y-6">
-            {/* Unboxed Metadata & Title */}
             <div className="space-y-2 pb-5 border-b border-white/[0.08]">
               <div className="flex items-center gap-1.5 text-xs text-slate-400">
                 <span className="uppercase tracking-wider text-slate-300 font-medium">
@@ -442,13 +467,13 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
               </h1>
 
               <p className="text-xs font-mono tabular-nums text-slate-400">
-                VIN: {car.vin} · Status: <span className="text-emerald-400 capitalize">{car.status}</span>
+                VIN: {car.vin} · Status:{' '}
+                <span className="text-emerald-400 capitalize">{car.status}</span>
               </p>
             </div>
 
-            {/* Pricing */}
             <div className="space-y-1">
-              <span className="text-xs text-slate-400 block"> Showroom Acquisition Price</span>
+              <span className="text-xs text-slate-400 block">Showroom Acquisition Price</span>
               <div className="text-4xl font-bold text-white font-mono tabular-nums">
                 ${car.price.toLocaleString()}
               </div>
@@ -457,7 +482,6 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
               </p>
             </div>
 
-            {/* Selected Location & Bay */}
             {car.showroom && (
               <div className="p-4 rounded-xl bg-[#090B10] border border-white/[0.06] space-y-1 text-xs">
                 <div className="flex justify-between text-slate-400">
@@ -473,7 +497,6 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
               </div>
             )}
 
-            {/* Primary & Secondary Actions */}
             <div className="space-y-3 pt-2">
               <button
                 type="button"
@@ -491,6 +514,15 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
               >
                 <Calendar className="w-3.5 h-3.5 text-rose-400" />
                 <span>Schedule Private Viewing</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setQrModalOpen(true)}
+                className="w-full py-3 px-4 rounded-xl bg-[#090B10] hover:bg-white/[0.04] text-cyan-300 hover:text-white font-medium text-xs transition-colors border border-cyan-500/30 flex items-center justify-center gap-2 whitespace-nowrap shrink-0"
+              >
+                <QrCode className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Generate Mobile QR Pass</span>
               </button>
 
               <button
@@ -561,6 +593,9 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
         </div>
       )}
 
+      {/* QR Code Generator Modal */}
+      {qrModalOpen && <CarQrCodeModal car={car} onClose={() => setQrModalOpen(false)} />}
+
       {/* Booking Modal */}
       {bookingModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in-up">
@@ -628,7 +663,9 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
 
               {bookingModal === 'test_drive' && (
                 <div>
-                  <label className="font-medium text-slate-300 block mb-1.5">Preferred Date & Time</label>
+                  <label className="font-medium text-slate-300 block mb-1.5">
+                    Preferred Date & Time
+                  </label>
                   <input
                     type="datetime-local"
                     required
@@ -641,7 +678,9 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
 
               {bookingModal === 'enquiry' && (
                 <div>
-                  <label className="font-medium text-slate-300 block mb-1.5">Notes or Questions</label>
+                  <label className="font-medium text-slate-300 block mb-1.5">
+                    Notes or Questions
+                  </label>
                   <textarea
                     rows={3}
                     placeholder="Inquire about JEVIC auction dossier, leasing terms, or trade-in..."

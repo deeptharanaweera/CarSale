@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Car, Showroom } from '../../types';
 import { CarCard } from './CarCard';
+import { CarQrCodeModal } from './CarQrCodeModal';
 import {
   Filter,
   SlidersHorizontal,
@@ -10,6 +11,7 @@ import {
   List,
   X,
   ChevronRight,
+  QrCode,
 } from 'lucide-react';
 
 interface CarListingProps {
@@ -44,6 +46,7 @@ export const CarListing: React.FC<CarListingProps> = ({
   const [sortBy, setSortBy] = useState<string>('featured');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [qrModalCar, setQrModalCar] = useState<Car | null>(null);
 
   const brands = useMemo(() => {
     return ['all', ...Array.from(new Set(cars.map((c) => c.model?.brand?.slug).filter(Boolean)))];
@@ -376,6 +379,7 @@ export const CarListing: React.FC<CarListingProps> = ({
                     isCompared={comparedCars.some((c) => c.id === car.id)}
                     onToggleFavorite={() => onToggleFavorite(car)}
                     onToggleCompare={() => onToggleCompare(car)}
+                    onOpenQr={(c) => setQrModalCar(c)}
                     onSelect={onSelectCar}
                   />
                 ))}
@@ -432,17 +436,30 @@ export const CarListing: React.FC<CarListingProps> = ({
                           Est. ${Math.round(car.price / 60).toLocaleString()}/mo
                         </span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectCar(car);
-                        }}
-                        className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition-colors flex items-center gap-1 whitespace-nowrap shrink-0"
-                      >
-                        <span>Inspect 3D</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setQrModalCar(car);
+                          }}
+                          className="p-2 rounded-lg bg-[#090B10] hover:bg-white/[0.08] border border-cyan-500/30 text-cyan-400 transition-colors"
+                          title="Generate Mobile QR Code"
+                        >
+                          <QrCode className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSelectCar(car);
+                          }}
+                          className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition-colors flex items-center gap-1 whitespace-nowrap shrink-0"
+                        >
+                          <span>Inspect 3D</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -467,6 +484,11 @@ export const CarListing: React.FC<CarListingProps> = ({
           )}
         </div>
       </div>
+
+      {/* QR Code Generator Modal */}
+      {qrModalCar && (
+        <CarQrCodeModal car={qrModalCar} onClose={() => setQrModalCar(null)} />
+      )}
     </div>
   );
 };
