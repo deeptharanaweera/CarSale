@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  ShieldCheck,
-  Award,
-  Zap,
-  Wrench,
-  CheckCircle2,
-  Clock,
-  MapPin,
-  Headphones,
-  ArrowRight,
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 interface TheAuraAdvantageProps {
   onExploreServicePark?: () => void;
@@ -22,105 +12,93 @@ export const TheAuraAdvantage: React.FC<TheAuraAdvantageProps> = ({
 }) => {
   const pillars = [
     {
-      icon: <Award className="w-7 h-7 text-red-500" />,
-      badge: 'JEVIC & EXPORT CERTIFIED',
-      title: '100% Guaranteed Genuine Mileage',
+      index: '01',
+      kicker: 'JEVIC & Export Certified',
+      title: '01. Guaranteed Genuine Mileage',
       description:
-        'Every vehicle in our collection is backed by original Japanese and European auction inspection sheets and third-party JEVIC certification. Zero odometer rollbacks guaranteed.',
-      highlight: 'Original Auction Sheet Included',
+        'Every vehicle in our collection is backed by original Japanese and European auction inspection dossiers and independent JEVIC odometer verification.',
+      proof: '100% Original Auction Dossier Included',
     },
     {
-      icon: <ShieldCheck className="w-7 h-7 text-emerald-400" />,
-      badge: 'UNRIVALED PROTECTION',
-      title: 'Comprehensive In-House Warranty',
+      index: '02',
+      kicker: 'Factory-Grade Coverage',
+      title: '02. Comprehensive 3-Year Warranty',
       description:
-        'Enjoy worry-free ownership with up to 3 Years / 100,000 km bumper-to-bumper and hybrid system warranty, honored across our nationwide service network.',
-      highlight: 'Free Periodic Services Included',
+        'Ownership protected by up to 3 Years or 100,000 km bumper-to-bumper powertrain and high-voltage hybrid battery warranty across our branch network.',
+      proof: '3 Years / 100,000 km Powertrain Protection',
     },
     {
-      icon: <Zap className="w-7 h-7 text-amber-400" />,
-      badge: 'FAST TRACK TRADE-IN',
-      title: 'Sell or Upgrade in 30 Minutes',
+      index: '03',
+      kicker: 'Rapid Liquidity & Trade-In',
+      title: '03. Fast Track 30-Minute Valuation',
       description:
-        'Need to sell your existing car or trade in for an upgrade? Our Fast Track system conducts a 15-minute diagnostic evaluation and offers the highest guaranteed market valuation.',
-      highlight: 'Instant Bank Wire Payout',
+        'Our diagnostic bays evaluate your current vehicle in 15 minutes and issue a guaranteed market buyback or direct trade-in credit on the same day.',
+      proof: 'Same-Day Wire Settlement Available',
       action: onExploreFastTrack,
-      actionText: 'Fast Track Valuation →',
+      actionText: 'Launch Valuation Calculator',
     },
     {
-      icon: <Wrench className="w-7 h-7 text-sky-400" />,
-      badge: 'AFTER-SALES MASTERY',
-      title: 'State-of-the-Art Service Center',
+      index: '04',
+      kicker: 'Master Engineering Bays',
+      title: '04. OEM Diagnostic Service Center',
       description:
-        'Equipped with OEM computerized diagnostic scanners, high-voltage EV battery balancing, 3D laser wheel alignment, and 100% genuine Japanese & European spare parts.',
-      highlight: '24/7 Island-Wide Breakdown Rescue',
+        'Equipped with factory telemetry scanners, high-voltage EV cell balancing rigs, 3D laser alignment, and direct-import OEM replacement components.',
+      proof: '24/7 Nationwide Roadside Recovery',
       action: onExploreServicePark,
-      actionText: 'Discover Service Center →',
+      actionText: 'Explore Service Capabilities',
     },
   ];
 
   return (
-    <section className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 xl:px-12 space-y-12">
-      {/* Section Header */}
-      <div className="text-center max-w-3xl mx-auto space-y-3">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-600/10 border border-red-500/30 text-red-400 text-xs font-mono uppercase tracking-widest">
-          <Award className="w-3.5 h-3.5 text-red-500" />
-          The Gold Standard in Automotive Retail
+    <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 space-y-10">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-white/[0.08]">
+        <div className="space-y-1.5 max-w-2xl">
+          <div className="text-xs text-slate-400">
+            <span>Institutional Standards</span>
+            <span aria-hidden="true" className="mx-2">·</span>
+            <span>Established 1975</span>
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-bold text-white font-display tracking-tight">
+            The Aura Standard of Ownership
+          </h2>
         </div>
-        <h2 className="text-3xl sm:text-5xl font-black text-white font-display uppercase tracking-tight">
-          The Aura Advantage
-        </h2>
-        <p className="text-slate-400 text-sm sm:text-base font-light leading-relaxed">
-          Over 50 years of uncompromising integrity, premium automobile provenance, and dedicated customer care. Here is why discerning drivers choose our dealership.
+        <p className="text-sm text-slate-400 max-w-md leading-relaxed">
+          Five decades of transparent automotive provenance, certified telemetry inspections, and dedicated after-sales engineering.
         </p>
       </div>
 
-      {/* 4 Trust Pillars Bento Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {pillars.map((pillar, idx) => (
+      {/* Asymmetric Bento Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {pillars.map((pillar) => (
           <div
-            key={idx}
-            className="rounded-3xl bg-slate-900/60 hover:bg-slate-900/90 border border-white/[0.08] hover:border-red-500/40 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 card-hover-lift group relative overflow-hidden shadow-lg"
+            key={pillar.index}
+            className="rounded-2xl bg-[#11151F] border border-white/[0.08] p-8 flex flex-col justify-between space-y-6"
           >
-            {/* Ambient Background Gradient */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 group-hover:bg-red-600/15 rounded-full blur-2xl transition-all pointer-events-none" />
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="w-14 h-14 rounded-2xl bg-slate-950 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  {pillar.icon}
-                </div>
-                <span className="text-2xl font-black font-mono text-white/15 group-hover:text-red-500/30 transition-colors">
-                  0{idx + 1}
-                </span>
+            <div className="space-y-3">
+              <div className="text-xs text-slate-400 font-medium">
+                <span>{pillar.kicker}</span>
               </div>
-
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-red-400 font-bold block mb-1">
-                  {pillar.badge}
-                </span>
-                <h3 className="text-xl font-bold text-white font-display">
-                  {pillar.title}
-                </h3>
-              </div>
-
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-light">
+              <h3 className="text-xl font-semibold text-white font-display">
+                {pillar.title}
+              </h3>
+              <p className="text-sm text-slate-300 leading-relaxed max-w-[65ch]">
                 {pillar.description}
               </p>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-white/[0.06] space-y-2">
-              <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>{pillar.highlight}</span>
-              </div>
+            <div className="pt-5 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-4">
+              <span className="text-xs font-mono tabular-nums text-slate-400">
+                {pillar.proof}
+              </span>
 
               {pillar.action && (
                 <button
+                  type="button"
                   onClick={pillar.action}
-                  className="text-xs font-bold text-red-400 hover:text-red-300 flex items-center gap-1 pt-1 transition-colors group-hover:translate-x-1"
+                  className="text-xs font-semibold text-rose-400 hover:text-rose-300 flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
                 >
-                  {pillar.actionText}
+                  <span>{pillar.actionText}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
@@ -128,38 +106,25 @@ export const TheAuraAdvantage: React.FC<TheAuraAdvantageProps> = ({
         ))}
       </div>
 
-      {/* Quick Trust Credentials Banner */}
-      <div className="rounded-3xl bg-gradient-to-r from-red-950/40 via-slate-900 to-slate-950 border border-red-500/20 p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-red-600/30 font-display font-black text-xl">
-            50+
-          </div>
-          <div>
-            <h4 className="text-white font-bold text-base font-display">
-              Celebrating Half a Century of Automobile Excellence
-            </h4>
-            <p className="text-xs text-slate-400">
-              Founded in 1975 • Over 45,000+ satisfied clients across Sri Lanka and worldwide
-            </p>
-          </div>
+      {/* Claim-to-Proof Adjacency Strip */}
+      <div className="rounded-2xl bg-[#11151F] border border-white/[0.08] p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="space-y-1">
+          <h3 className="text-base font-semibold text-white font-display">
+            45,000+ Vehicles Delivered Since 1975
+          </h3>
+          <p className="text-xs text-slate-400">
+            Audited under ISO 9001:2015 quality management with direct importation from Japan, Germany, and the United Kingdom.
+          </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-6 text-xs text-slate-300 font-mono">
-          <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            ISO 9001:2015 Certified
-          </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            JEVIC Approved Importer
-          </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            Approved Bank Leasing Facilities
-          </span>
+        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300 font-mono tabular-nums">
+          <span>ISO 9001:2015 Certified</span>
+          <span aria-hidden="true" className="text-slate-600">·</span>
+          <span>JEVIC Approved Importer</span>
+          <span aria-hidden="true" className="text-slate-600">·</span>
+          <span>Tier-1 Bank Leasing Partner</span>
         </div>
       </div>
     </section>
   );
 };
-

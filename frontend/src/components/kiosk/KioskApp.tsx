@@ -253,7 +253,7 @@ export const KioskApp: React.FC = () => {
             {/* Car Cards Grid */}
             <div className="grid grid-cols-3 gap-6 flex-1">
               {filteredCars.map((car) => {
-                const coverImage = car.images?.[0]?.url || 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=800&q=80';
+                const coverImage = car.images?.[0]?.url || '/src/assets/images/car_bmw_m4_emerald_1793964978767.jpg';
                 return (
                   <div
                     key={car.id}

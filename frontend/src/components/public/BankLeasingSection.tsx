@@ -1,21 +1,12 @@
 import React, { useState } from 'react';
-import {
-  Landmark,
-  Calculator,
-  Percent,
-  Calendar,
-  CheckCircle2,
-  DollarSign,
-  ArrowRight,
-  ShieldCheck,
-  Sparkles,
-} from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export const BankLeasingSection: React.FC = () => {
-  const [vehiclePrice, setVehiclePrice] = useState(85000);
+  const [vehiclePrice, setVehiclePrice] = useState(165000);
   const [downPaymentPct, setDownPaymentPct] = useState(25);
   const [tenureYears, setTenureYears] = useState(5);
-  const [interestRate, setInterestRate] = useState(11.5);
+  const [interestRate, setInterestRate] = useState(6.25);
+  const [preApprovalSent, setPreApprovalSent] = useState(false);
 
   const downPaymentAmount = Math.round((vehiclePrice * downPaymentPct) / 100);
   const loanPrincipal = vehiclePrice - downPaymentAmount;
@@ -31,214 +22,212 @@ export const BankLeasingSection: React.FC = () => {
       : Math.round(loanPrincipal / totalMonths);
 
   const banks = [
-    { name: 'Commercial Bank', badge: 'Special Rate from 10.25%', logo: 'COMBANK' },
-    { name: 'Hatton National Bank', badge: 'Special Leasing Partner', logo: 'HNB' },
-    { name: 'Sampath Bank', badge: 'Speed Lease in 24 Hrs', logo: 'SAMPATH' },
-    { name: 'Seylan Bank', badge: 'Flexible Down-Payments', logo: 'SEYLAN' },
-    { name: 'Nations Trust Bank', badge: 'Exclusive VIP Rates', logo: 'NTB' },
+    { name: 'J.P. Morgan Private Client', rate: 'From 5.85% APR', term: 'Up to 84 Months' },
+    { name: 'Morgan Stanley Private Bank', rate: 'From 6.10% APR', term: 'Balloon & Residual Options' },
+    { name: 'Bank of America Premier', rate: 'From 6.25% APR', term: '24-Hour Credit Decision' },
+    { name: 'UBS Wealth Management', rate: 'Portfolio Line Credit', term: 'Custom Exotic Structuring' },
   ];
 
   return (
-    <section id="leasing" className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 xl:px-12 space-y-12">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-white/10">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-600/10 border border-red-500/20 text-red-400 text-xs font-mono uppercase tracking-widest font-bold">
-            <Landmark className="w-3.5 h-3.5 text-red-500" />
-            Financial Solutions & Bank Partnerships
+    <section id="leasing" className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 space-y-10">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-white/[0.08]">
+        <div className="space-y-1.5">
+          <div className="text-xs text-slate-400">
+            <span>Bespoke Automotive Finance</span>
+            <span aria-hidden="true" className="mx-2">·</span>
+            <span>Tier-1 Institutional Partners</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-black text-white font-display uppercase tracking-tight">
-            Easy Leasing & Financial Services
+          <h2 className="text-2xl sm:text-4xl font-bold text-white font-display tracking-tight">
+            Tailored Leasing & Capital Structuring
           </h2>
-          <p className="text-slate-400 text-sm max-w-xl font-light">
-            We partner directly with leading premier financial institutions to offer tailored leasing packages with competitive interest rates and swift 24-hour approvals.
-          </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Up to 80% Financing Approved
-          </span>
-        </div>
+        <p className="text-xs sm:text-sm text-slate-400 max-w-md">
+          Up to 80% financing with closed-end lease structures, portfolio credit lines, and same-day underwriting approvals.
+        </p>
       </div>
 
-      {/* Partner Banks Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+      {/* Institutional Partners Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {banks.map((b) => (
           <div
             key={b.name}
-            className="p-5 rounded-2xl bg-slate-900/60 border border-white/[0.08] flex flex-col justify-between hover:border-red-500/40 transition-all text-center group"
+            className="p-5 rounded-xl bg-[#11151F] border border-white/[0.08] space-y-1.5"
           >
-            <span className="text-base font-black text-white font-display tracking-wider group-hover:text-red-400 transition-colors">
-              {b.logo}
-            </span>
-            <span className="text-[11px] font-bold text-slate-300 mt-1 block">
+            <h3 className="text-sm font-semibold text-white font-display">
               {b.name}
-            </span>
-            <span className="text-[10px] font-mono text-emerald-400 mt-2 block bg-slate-950 py-1.5 px-2 rounded-lg border border-white/[0.04]">
-              {b.badge}
-            </span>
+            </h3>
+            <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono tabular-nums">
+              <span className="text-slate-200">{b.rate}</span>
+              <span aria-hidden="true">·</span>
+              <span>{b.term}</span>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Interactive EMI Calculator */}
-      <div className="rounded-3xl bg-slate-900/80 border border-white/10 p-6 sm:p-10 relative overflow-hidden backdrop-blur-xl shadow-2xl">
+      {/* Interactive Lease & Amortization Calculator */}
+      <div className="rounded-2xl bg-[#11151F] border border-white/[0.08] p-8 sm:p-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          {/* Sliders Form */}
+          {/* Left Sliders (7 cols) */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="flex items-center gap-2">
-              <Calculator className="w-5 h-5 text-red-500" />
-              <h3 className="text-xl font-bold text-white font-display">
-                Automated Monthly Lease Calculator
-              </h3>
-            </div>
+            <h3 className="text-lg font-semibold text-white font-display">
+              Interactive Lease Amortization Calculator
+            </h3>
 
-            {/* Slider 1: Vehicle Price */}
+            {/* Vehicle Price */}
             <div className="space-y-2">
               <div className="flex justify-between text-xs">
-                <span className="text-slate-400 font-semibold uppercase tracking-wider">
-                  Vehicle Valuation
-                </span>
-                <span className="font-mono text-white font-bold text-sm">
+                <span className="text-slate-400">Vehicle Purchase Valuation</span>
+                <span className="font-mono tabular-nums text-white font-semibold">
                   ${vehiclePrice.toLocaleString()}
                 </span>
               </div>
               <input
                 type="range"
-                min={20000}
-                max={250000}
+                min={60000}
+                max={500000}
                 step={5000}
                 value={vehiclePrice}
-                onChange={(e) => setVehiclePrice(Number(e.target.value))}
-                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                onChange={(e) => {
+                  setVehiclePrice(Number(e.target.value));
+                  setPreApprovalSent(false);
+                }}
+                className="w-full h-1.5 bg-[#090B10] rounded-lg appearance-none cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-                <span>$20,000</span>
-                <span>$250,000+</span>
+              <div className="flex justify-between text-[11px] text-slate-500 font-mono tabular-nums">
+                <span>$60,000</span>
+                <span>$500,000</span>
               </div>
             </div>
 
-            {/* Slider 2: Down Payment */}
+            {/* Down Payment */}
             <div className="space-y-2">
               <div className="flex justify-between text-xs">
-                <span className="text-slate-400 font-semibold uppercase tracking-wider">
-                  Down Payment ({downPaymentPct}%)
-                </span>
-                <span className="font-mono text-emerald-400 font-bold text-sm">
+                <span className="text-slate-400">Initial Capital Reduction ({downPaymentPct}%)</span>
+                <span className="font-mono tabular-nums text-white font-semibold">
                   ${downPaymentAmount.toLocaleString()}
                 </span>
               </div>
               <input
                 type="range"
-                min={20}
+                min={10}
                 max={60}
                 step={5}
                 value={downPaymentPct}
-                onChange={(e) => setDownPaymentPct(Number(e.target.value))}
-                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                onChange={(e) => {
+                  setDownPaymentPct(Number(e.target.value));
+                  setPreApprovalSent(false);
+                }}
+                className="w-full h-1.5 bg-[#090B10] rounded-lg appearance-none cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-                <span>20% (Minimum)</span>
-                <span>60% (Maximum)</span>
+              <div className="flex justify-between text-[11px] text-slate-500 font-mono tabular-nums">
+                <span>10% Minimum</span>
+                <span>60% Maximum</span>
               </div>
             </div>
 
-            {/* Slider 3: Tenure Years */}
+            {/* Tenure */}
             <div className="space-y-2">
               <div className="flex justify-between text-xs">
-                <span className="text-slate-400 font-semibold uppercase tracking-wider">
-                  Lease Period / Tenure
-                </span>
-                <span className="font-mono text-white font-bold text-sm">
+                <span className="text-slate-400">Amortization Term</span>
+                <span className="font-mono tabular-nums text-white font-semibold">
                   {tenureYears} Years ({totalMonths} Months)
                 </span>
               </div>
-              <div className="grid grid-cols-5 gap-2">
-                {[1, 2, 3, 4, 5, 7].slice(0, 5).map((yr) => (
+              <div className="grid grid-cols-5 gap-2 p-1 bg-[#090B10] rounded-lg border border-white/[0.06]">
+                {[2, 3, 4, 5, 7].map((yr) => (
                   <button
                     key={yr}
                     type="button"
-                    onClick={() => setTenureYears(yr)}
-                    className={`py-2 rounded-xl text-xs font-bold font-mono transition-all ${
+                    onClick={() => {
+                      setTenureYears(yr);
+                      setPreApprovalSent(false);
+                    }}
+                    className={`py-2 rounded-md text-xs font-mono tabular-nums font-medium transition-colors whitespace-nowrap shrink-0 ${
                       tenureYears === yr
-                        ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
-                        : 'bg-slate-950 text-slate-400 border border-white/10 hover:text-white'
+                        ? 'bg-rose-600 text-white'
+                        : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    {yr} Yrs
+                    {yr * 12} mo
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Slider 4: Interest Rate */}
+            {/* Interest Rate */}
             <div className="space-y-2">
               <div className="flex justify-between text-xs">
-                <span className="text-slate-400 font-semibold uppercase tracking-wider">
-                  Annual Interest Rate
-                </span>
-                <span className="font-mono text-white font-bold text-sm">
-                  {interestRate}% p.a.
+                <span className="text-slate-400">Estimated Tier-1 APR</span>
+                <span className="font-mono tabular-nums text-white font-semibold">
+                  {interestRate.toFixed(2)}% p.a.
                 </span>
               </div>
               <input
                 type="range"
-                min={9.5}
-                max={16.5}
-                step={0.5}
+                min={4.5}
+                max={11.5}
+                step={0.25}
                 value={interestRate}
-                onChange={(e) => setInterestRate(Number(e.target.value))}
-                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-red-600"
+                onChange={(e) => {
+                  setInterestRate(Number(e.target.value));
+                  setPreApprovalSent(false);
+                }}
+                className="w-full h-1.5 bg-[#090B10] rounded-lg appearance-none cursor-pointer"
               />
             </div>
           </div>
 
-          {/* Right Calculated Result Box */}
+          {/* Right Summary Card (5 cols) */}
           <div className="lg:col-span-5">
-            <div className="rounded-3xl bg-slate-950 border border-white/15 p-8 text-center space-y-6 shadow-2xl relative overflow-hidden">
+            <div className="rounded-xl bg-[#090B10] border border-white/[0.08] p-6 sm:p-8 space-y-6">
               <div className="space-y-1">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-slate-400 block">
-                  Estimated Monthly Installment
+                <span className="text-xs text-slate-400 block">
+                  Estimated Monthly Payment
                 </span>
-                <div className="text-4xl sm:text-5xl font-black text-white font-mono tracking-tight text-red-500">
+                <div className="text-4xl font-bold text-white font-mono tabular-nums">
                   ${monthlyPayment.toLocaleString()}
-                  <span className="text-xs text-slate-400 font-normal"> / mo</span>
+                  <span className="text-xs text-slate-400 font-normal ml-1">/ month</span>
                 </div>
               </div>
 
-              <div className="divide-y divide-white/[0.08] text-xs text-slate-300 font-mono text-left pt-2">
+              <div className="divide-y divide-white/[0.06] text-xs font-mono tabular-nums">
                 <div className="py-2.5 flex justify-between">
-                  <span className="text-slate-400">Total Vehicle Cost:</span>
-                  <span className="text-white font-bold">${vehiclePrice.toLocaleString()}</span>
+                  <span className="font-sans text-slate-400">Vehicle Valuation</span>
+                  <span className="text-white">${vehiclePrice.toLocaleString()}</span>
                 </div>
                 <div className="py-2.5 flex justify-between">
-                  <span className="text-slate-400">Required Down Payment ({downPaymentPct}%):</span>
-                  <span className="text-emerald-400 font-bold">${downPaymentAmount.toLocaleString()}</span>
+                  <span className="font-sans text-slate-400">Down Payment ({downPaymentPct}%)</span>
+                  <span className="text-slate-200">${downPaymentAmount.toLocaleString()}</span>
                 </div>
                 <div className="py-2.5 flex justify-between">
-                  <span className="text-slate-400">Financed Loan Principal:</span>
-                  <span className="text-white font-bold">${loanPrincipal.toLocaleString()}</span>
+                  <span className="font-sans text-slate-400">Financed Principal</span>
+                  <span className="text-white font-semibold">${loanPrincipal.toLocaleString()}</span>
                 </div>
                 <div className="py-2.5 flex justify-between">
-                  <span className="text-slate-400">Repayment Period:</span>
-                  <span className="text-white font-bold">{totalMonths} Monthly Installments</span>
+                  <span className="font-sans text-slate-400">Term & Rate</span>
+                  <span className="text-slate-200">{totalMonths} mos @ {interestRate.toFixed(2)}%</span>
                 </div>
               </div>
 
-              <button
-                onClick={() => {
-                  const text = encodeURIComponent(
-                    `Hello Leasing Team, I used the online leasing calculator for a $${vehiclePrice.toLocaleString()} vehicle ($${downPaymentAmount.toLocaleString()} down payment, ${tenureYears} yrs tenure). Please help me apply for pre-approved leasing.`
-                  );
-                  window.open(`https://wa.me/94777874422?text=${text}`, '_blank');
-                }}
-                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black text-xs uppercase tracking-wider transition-all shadow-xl shadow-red-600/30 flex items-center justify-center gap-2 active:scale-95"
-              >
-                <span>Apply for Pre-Approved Lease</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              {preApprovalSent ? (
+                <div className="p-3.5 rounded-lg bg-[#11151F] border border-white/[0.1] flex items-center gap-2 text-xs text-emerald-400">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>
+                    Pre-approval schedule prepared. A private client finance officer will contact you.
+                  </span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setPreApprovalSent(true)}
+                  className="w-full py-3.5 px-6 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-2 whitespace-nowrap shrink-0"
+                >
+                  <span>Request Private Finance Term Sheet</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>

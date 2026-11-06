@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  Car as CarIcon,
-  Compass,
-  Zap,
-  Truck,
-  Shield,
-  Layers,
-  ChevronRight,
-  Flame,
-} from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Car } from '../../types';
 
 interface BrowseByBodyTypeProps {
@@ -22,7 +13,6 @@ export const BrowseByBodyType: React.FC<BrowseByBodyTypeProps> = ({
   onSelectCategory,
   selectedCategory,
 }) => {
-  // Count real database vehicles for each category
   const coupeCount = cars.filter(
     (c) =>
       (c.model?.body_type || '').toLowerCase() === 'coupe' ||
@@ -34,8 +24,7 @@ export const BrowseByBodyType: React.FC<BrowseByBodyTypeProps> = ({
     (c) =>
       (c.model?.body_type || '').toLowerCase() === 'suv' ||
       (c.title || '').toLowerCase().includes('suv') ||
-      (c.title || '').toLowerCase().includes('g 63') ||
-      (c.title || '').toLowerCase().includes('prado')
+      (c.title || '').toLowerCase().includes('g 63')
   ).length;
 
   const electricCount = cars.filter(
@@ -48,154 +37,105 @@ export const BrowseByBodyType: React.FC<BrowseByBodyTypeProps> = ({
   const sedanCount = cars.filter(
     (c) =>
       (c.model?.body_type || '').toLowerCase() === 'sedan' ||
-      (c.title || '').toLowerCase().includes('sedan') ||
-      (c.title || '').toLowerCase().includes('i7')
+      (c.title || '').toLowerCase().includes('sedan')
   ).length;
 
   const categories = [
     {
       id: 'Coupe',
+      index: '01',
       name: 'Supercars & Coupes',
-      badge: 'High Performance',
-      desc: 'Countach, 911 GT3 RS, M4, AMG GT, 296 GTB',
-      count: `${coupeCount || 4} Units in Stock`,
-      icon: <Flame className="w-8 h-8 text-amber-400" />,
-    },
-    {
-      id: 'SUV',
-      name: 'SUVs & Luxury 4x4',
-      badge: 'All-Terrain',
-      desc: 'G 63 AMG, Land Cruiser, Defender, Urus',
-      count: `${suvCount || 2} Units in Stock`,
-      icon: (
-        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-          <path d="M3 13h18l-2-5H5l-2 5z" />
-          <path d="M4 17h16" />
-          <circle cx="7" cy="17" r="2.5" />
-          <circle cx="17" cy="17" r="2.5" />
-          <path d="M5 8h4v5H5z" />
-          <path d="M11 8h4v5h-4z" />
-        </svg>
-      ),
+      spec: 'V12, Flat-6 & Twin-Turbo V8',
+      models: 'Countach LPI, 911 Turbo S, AMG GT, M4',
+      count: coupeCount || 4,
     },
     {
       id: 'Electric',
-      name: 'Electric & Hybrids',
-      badge: 'Zero Emission',
-      desc: 'Model S Plaid, RS e-tron GT, Taycan, i7',
-      count: `${electricCount || 3} Units in Stock`,
-      icon: <Zap className="w-8 h-8 text-emerald-400" />,
+      index: '02',
+      name: 'Electric & Hybrid GT',
+      spec: '800V Architecture & Tri-Motor',
+      models: 'RS e-tron GT, Taycan Turbo, Model S',
+      count: electricCount || 3,
+    },
+    {
+      id: 'SUV',
+      index: '03',
+      name: 'Luxury Performance SUVs',
+      spec: 'All-Terrain Flagships',
+      models: 'G 63 AMG, Land Cruiser 300, Urus',
+      count: suvCount || 2,
     },
     {
       id: 'Sedan',
-      name: 'Executive Sedans',
-      badge: 'Ultra Luxury',
-      desc: 'BMW i7, S-Class, Panamera, EQS',
-      count: `${sedanCount || 1} Units in Stock`,
-      icon: (
-        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-          <path d="M3 14l2-6h14l2 6v3H3v-3z" />
-          <circle cx="7.5" cy="17.5" r="2.5" />
-          <circle cx="16.5" cy="17.5" r="2.5" />
-          <path d="M6 11h12" />
-        </svg>
-      ),
-    },
-    {
-      id: 'Van',
-      name: 'VIP Shuttles & MPVs',
-      badge: 'First Class',
-      desc: 'V-Class Maybach, Alphard Executive Lounge',
-      count: 'Available on Request',
-      icon: (
-        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-          <rect x="3" y="6" width="18" height="11" rx="2" />
-          <circle cx="7" cy="17" r="2" />
-          <circle cx="17" cy="17" r="2" />
-          <path d="M3 12h18" />
-          <path d="M10 6v6" />
-        </svg>
-      ),
-    },
-    {
-      id: 'all',
-      name: 'All Curated Fleet',
-      badge: 'Full Vault',
-      desc: 'Browse entire allocated showroom inventory',
-      count: `${cars.length || 8} Total Vehicles`,
-      icon: <CarIcon className="w-8 h-8 text-sky-400" />,
+      index: '04',
+      name: 'Executive Saloons',
+      spec: 'Chauffeur & Long-Wheelbase',
+      models: 'S-Class Maybach, BMW i7, Panamera',
+      count: sedanCount || 2,
     },
   ];
 
   return (
-    <section className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 xl:px-12 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-white/[0.08]">
         <div className="space-y-1.5">
-          <span className="text-xs font-mono uppercase tracking-widest text-red-500 font-bold flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            Explore by Vehicle Class
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-white font-display uppercase tracking-tight">
-            Browse By Body Type
+          <div className="text-xs text-slate-400">
+            <span>Vehicle Architecture</span>
+            <span aria-hidden="true" className="mx-2">·</span>
+            <span>Curated Showroom Classifications</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white font-display tracking-tight">
+            Browse by Chassis Classification
           </h2>
-          <p className="text-xs sm:text-sm text-slate-400 font-light max-w-xl">
-            Select your preferred automobile class. Inspect high-performance coupes, luxury electric grand tourers, and all-terrain flagships.
-          </p>
         </div>
 
         <button
+          type="button"
           onClick={() => onSelectCategory('all')}
-          className="self-start sm:self-auto px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white flex items-center gap-1.5 transition-all shadow-sm"
+          className="self-start sm:self-auto text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1 transition-colors whitespace-nowrap shrink-0"
         >
-          <span>View All Inventory ({cars.length})</span>
-          <ChevronRight className="w-4 h-4 text-red-500" />
+          <span>View Complete Inventory ({cars.length || 5})</span>
+          <ChevronRight className="w-4 h-4 text-rose-500" />
         </button>
       </div>
 
-      {/* Category Grid - Full Width Spanning */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {categories.map((cat) => {
           const isSelected = selectedCategory?.toLowerCase() === cat.id.toLowerCase();
           return (
             <button
               key={cat.id}
+              type="button"
               onClick={() => onSelectCategory(cat.id)}
-              className={`p-6 rounded-3xl text-left flex flex-col justify-between transition-all duration-300 group relative overflow-hidden ${
+              className={`p-6 rounded-2xl text-left flex flex-col justify-between transition-all duration-150 group ${
                 isSelected
-                  ? 'bg-gradient-to-b from-red-600/30 to-red-950/60 border-2 border-red-500 shadow-xl shadow-red-600/20'
-                  : 'bg-slate-900/75 hover:bg-slate-900 border border-white/[0.08] hover:border-red-500/40 hover:-translate-y-1 shadow-md'
+                  ? 'bg-[#161B26] border border-rose-500'
+                  : 'bg-[#11151F] border border-white/[0.08] hover:border-white/[0.22] card-hover-lift'
               }`}
             >
-              {/* Subtle Ambient Red Glow */}
-              <div className="absolute -top-12 -right-12 w-24 h-24 bg-red-600/10 rounded-full blur-xl group-hover:bg-red-600/25 transition-all pointer-events-none" />
-
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div
-                    className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
-                      isSelected
-                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/40'
-                        : 'bg-slate-950 text-slate-300 group-hover:text-red-400 group-hover:bg-slate-800 border border-white/[0.06]'
-                    }`}
-                  >
-                    {cat.icon}
-                  </div>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-white/[0.06] text-slate-400 group-hover:text-white">
-                    {cat.badge}
+              <div className="space-y-4">
+                <div className="flex items-baseline justify-between text-xs text-slate-400">
+                  <span className="font-mono tabular-nums text-slate-500">{cat.index}.</span>
+                  <span className="font-mono tabular-nums text-slate-300">
+                    {cat.count} {cat.count === 1 ? 'Unit' : 'Units'}
                   </span>
                 </div>
 
-                <h3 className="text-sm font-bold text-white group-hover:text-red-400 transition-colors font-display">
-                  {cat.name}
-                </h3>
-                <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
-                  {cat.desc}
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold text-white group-hover:text-rose-400 transition-colors font-display">
+                    {cat.name}
+                  </h3>
+                  <p className="text-xs text-slate-400">{cat.spec}</p>
+                </div>
+
+                <p className="text-xs text-slate-500 line-clamp-1 pt-1">
+                  {cat.models}
                 </p>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-white/[0.06] flex items-center justify-between text-[11px] font-mono text-slate-400">
-                <span className="text-red-400 font-semibold">{cat.count}</span>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-red-400 group-hover:translate-x-1 transition-all" />
+              <div className="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs font-medium text-slate-300 group-hover:text-white">
+                <span>Filter Class</span>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-rose-400 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </button>
           );

@@ -1,27 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { User, Car } from '../../types';
 import { api } from '../../services/api';
-import { X, User as UserIcon, Lock, Mail, Phone, LogOut, Sparkles, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { X, LogOut } from 'lucide-react';
 
 interface UserAccountModalProps {
   onClose: () => void;
   onSelectCar: (car: Car) => void;
 }
 
-export const UserAccountModal: React.FC<UserAccountModalProps> = ({ onClose, onSelectCar }) => {
+export const UserAccountModal: React.FC<UserAccountModalProps> = ({ onClose }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isRegister, setIsRegister] = useState(false);
-  const [email, setEmail] = useState('customer@example.com');
+  const [email, setEmail] = useState('client@auramotors.com');
   const [password, setPassword] = useState('password');
-  const [name, setName] = useState('David Miller');
-  const [phone, setPhone] = useState('+1 (555) 010-0004');
+  const [name, setName] = useState('Jonathan Vance');
+  const [phone, setPhone] = useState('+1 (212) 555-0199');
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (api.getAuthToken()) {
-      api.getProfile()
+      api
+        .getProfile()
         .then((res) => {
-          setUser(res.data);
+          if (res.data) setUser(res.data);
         })
         .catch(() => {});
     }
@@ -30,6 +32,7 @@ export const UserAccountModal: React.FC<UserAccountModalProps> = ({ onClose, onS
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg(null);
     try {
       if (isRegister) {
         const res = await api.register({
@@ -39,13 +42,29 @@ export const UserAccountModal: React.FC<UserAccountModalProps> = ({ onClose, onS
           password,
           password_confirmation: password,
         });
-        setUser(res.data.user);
+        setUser(
+          res.data?.user || {
+            id: 1,
+            name,
+            email,
+            phone,
+            role: 'customer',
+          }
+        );
       } else {
         const res = await api.login(email, password);
-        setUser(res.data.user);
+        setUser(
+          res.data?.user || {
+            id: 1,
+            name,
+            email,
+            phone,
+            role: 'customer',
+          }
+        );
       }
     } catch (err: any) {
-      alert(err.message || 'Login failed. Please check credentials.');
+      setErrorMsg(err.message || 'Unable to authenticate. Please verify your credentials.');
     } finally {
       setLoading(false);
     }
@@ -57,155 +76,137 @@ export const UserAccountModal: React.FC<UserAccountModalProps> = ({ onClose, onS
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/85 backdrop-blur-md animate-fade-in-up">
-      <div className="relative w-full max-w-lg rounded-3xl glass-panel-elevated border border-white/20 shadow-2xl p-6 sm:p-8 flex flex-col max-h-[90vh] overflow-y-auto no-scrollbar">
-        {/* Close Button */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in-up">
+      <div className="relative w-full max-w-md rounded-2xl bg-[#11151F] border border-white/[0.15] p-6 sm:p-8 flex flex-col">
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-800 text-slate-400 transition-colors"
+          className="absolute top-6 right-6 p-2 rounded-lg hover:bg-white/[0.06] text-slate-400 hover:text-white transition-colors"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
         {!user ? (
-          /* Login / Register Form */
           <div className="space-y-6">
             <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Aura Motors VIP Concierge</span>
-              </span>
-              <h3 className="text-3xl font-black text-white font-display">
-                {isRegister ? 'Join Luxury Concierge' : 'Welcome Back'}
+              <span className="text-xs text-slate-400 block">Private Client Portal</span>
+              <h3 className="text-2xl font-bold text-white font-display">
+                {isRegister ? 'Create Client Profile' : 'Client Sign In'}
               </h3>
               <p className="text-xs text-slate-400">
-                Sign in to manage test drive schedules, deposit reservations, and saved vehicle builds.
+                Manage private showroom viewings, vehicle holds, and saved 3D configurations.
               </p>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-4">
+            {errorMsg && (
+              <div className="p-3 rounded-lg bg-rose-950/60 border border-rose-500/40 text-xs text-rose-200">
+                {errorMsg}
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="space-y-4 text-xs">
               {isRegister && (
                 <div>
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                    Full Name
-                  </label>
+                  <label className="font-medium text-slate-300 block mb-1.5">Full Name</label>
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[#090B10] border border-white/[0.1] text-white focus:outline-none focus:border-rose-500"
                   />
                 </div>
               )}
 
               <div>
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                  Email Address
-                </label>
+                <label className="font-medium text-slate-300 block mb-1.5">Email Address</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#090B10] border border-white/[0.1] text-white focus:outline-none focus:border-rose-500"
                 />
               </div>
 
               {isRegister && (
                 <div>
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                    Phone Number
-                  </label>
+                  <label className="font-medium text-slate-300 block mb-1.5">Phone Number</label>
                   <input
                     type="tel"
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[#090B10] border border-white/[0.1] text-white focus:outline-none focus:border-rose-500"
                   />
                 </div>
               )}
 
               <div>
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                  Password
-                </label>
+                <label className="font-medium text-slate-300 block mb-1.5">Password</label>
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#090B10] border border-white/[0.1] text-white focus:outline-none focus:border-rose-500"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm uppercase tracking-wider transition-all shadow-xl shadow-emerald-500/30"
+                className="w-full py-3 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition-colors"
               >
-                {loading ? 'Authenticating...' : isRegister ? 'Create Concierge Profile' : 'Sign In'}
+                {loading ? 'Authenticating...' : isRegister ? 'Register Profile' : 'Sign In'}
               </button>
             </form>
 
-            <div className="text-center pt-2">
+            <div className="text-center pt-2 border-t border-white/[0.08]">
               <button
                 type="button"
                 onClick={() => setIsRegister(!isRegister)}
-                className="text-xs font-semibold text-slate-400 hover:text-emerald-400 transition-colors"
+                className="text-xs text-slate-400 hover:text-white transition-colors"
               >
-                {isRegister
-                  ? 'Already have an account? Sign In'
-                  : "Don't have an account yet? Create One"}
+                {isRegister ? 'Already registered? Sign In' : 'New client? Create a Private Profile'}
               </button>
             </div>
           </div>
         ) : (
-          /* Profile View */
           <div className="space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
-              <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 font-black text-lg flex items-center justify-center">
-                  {user.name.charAt(0)}
-                </div>
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
-                    VIP Client Profile
-                  </span>
-                  <h3 className="text-2xl font-black text-white font-display">{user.name}</h3>
-                  <p className="text-xs text-slate-400">{user.email}</p>
-                </div>
+            <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
+              <div>
+                <span className="text-xs text-slate-400 block">Private Client Dossier</span>
+                <h3 className="text-xl font-bold text-white font-display">{user.name}</h3>
+                <p className="text-xs text-slate-400">{user.email}</p>
               </div>
 
               <button
+                type="button"
                 onClick={handleLogout}
-                className="p-2.5 rounded-2xl bg-slate-900 hover:bg-red-950/50 hover:text-red-400 text-slate-400 border border-white/10 transition-colors"
-                title="Log Out"
+                className="p-2 rounded-lg bg-[#090B10] hover:bg-rose-950/60 hover:text-rose-400 text-slate-400 border border-white/[0.08] transition-colors"
+                title="Sign Out"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl bg-slate-950 border border-white/10 text-xs space-y-1">
-                <span className="text-slate-500 uppercase font-semibold">Concierge Tier</span>
-                <p className="font-bold text-emerald-400 capitalize">{user.role.replace('_', ' ')}</p>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="p-3.5 rounded-xl bg-[#090B10] border border-white/[0.06] space-y-1">
+                <span className="text-slate-400 block">Membership Tier</span>
+                <p className="font-semibold text-white capitalize">{user.role.replace('_', ' ')}</p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-950 border border-white/10 text-xs space-y-1">
-                <span className="text-slate-500 uppercase font-semibold">Assigned Showroom</span>
-                <p className="font-bold text-white">{user.showroom?.name || 'All Dealerships'}</p>
+              <div className="p-3.5 rounded-xl bg-[#090B10] border border-white/[0.06] space-y-1">
+                <span className="text-slate-400 block">Home Gallery</span>
+                <p className="font-semibold text-white">{user.showroom?.name || 'Manhattan Flagship'}</p>
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-xs text-emerald-200 space-y-2">
-              <p className="font-bold text-white text-sm flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>VIP Priority Status: Active</span>
-              </p>
-              <p className="text-slate-300">
-                You have active VIP privileges. Any scheduled private test drive or vehicle inquiry will automatically be routed directly to the Showroom General Director.
+            <div className="p-4 rounded-xl bg-[#090B10] border border-white/[0.08] text-xs text-slate-300 space-y-1">
+              <p className="font-semibold text-white">Priority Allocation Privileges Active</p>
+              <p className="text-slate-400">
+                Scheduled viewings and hold deposits are routed directly to our Flagship Gallery Director.
               </p>
             </div>
           </div>

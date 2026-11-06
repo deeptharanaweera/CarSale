@@ -126,7 +126,7 @@ export const AdminInventory: React.FC = () => {
           </thead>
           <tbody className="divide-y divide-slate-800 font-medium">
             {filteredCars.map((car) => {
-              const coverImg = car.images?.[0]?.url || 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=400&q=80';
+              const coverImg = car.images?.[0]?.url || '/src/assets/images/car_bmw_m4_emerald_1793964978767.jpg';
               return (
                 <tr key={car.id} className="hover:bg-slate-850/50 transition-colors">
                   {/* Vehicle details */}
@@ -464,7 +464,7 @@ function AddNewCarModal({ showrooms, onClose, onSuccess }: { showrooms: Showroom
         condition,
         status: 'available',
         vin: 'VIN' + Math.random().toString(36).substring(2, 10).toUpperCase(),
-        images: ['https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80'],
+        images: ['/src/assets/images/hero_hypercar_pavilion_1793964975599.jpg'],
       });
       alert('Car added successfully.');
       onSuccess(res.data);
